@@ -1,0 +1,118 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:fab="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
+    android:layout_height="match_parent" android:paddingLeft="0dp"
+    android:paddingRight="0dp"
+    android:paddingTop="0dp"
+    android:paddingBottom="0dp" tools:context=".MainActivityFragment"
+    android:id="@+id/layout">
+
+    <Button
+        android:layout_width="50dp"
+        android:layout_height="200dp"
+        android:text="Next"
+        android:id="@+id/nextQuestion"
+        android:background="@android:color/transparent"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentEnd="true" />
+
+    <Button
+        android:layout_width="50dp"
+        android:layout_height="200dp"
+        android:text="Last"
+        android:id="@+id/lastQuestion"
+        android:background="@android:color/transparent"
+        android:layout_alignTop="@+id/nextQuestion"
+        android:layout_alignParentStart="true" />
+
+    <TextView
+        android:layout_width="200dp"
+        android:layout_height="wrap_content"
+        android:text="Can you tell me a little bit about yourself?"
+        android:textSize="30dp"
+        android:layout_marginTop="20dp"
+        android:id="@+id/textView"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true" />
+
+    <ImageView
+        android:layout_width="105dp"
+        android:layout_height="85dp"
+        android:id="@+id/record"
+        android:src="@drawable/record"
+        android:layout_marginLeft="5dp"
+        android:layout_centerVertical="true"
+        android:layout_toStartOf="@+id/timer" />
+
+    <ImageView
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:id="@+id/timer"
+        android:src="@drawable/timer"
+        android:layout_centerVertical="true"
+        android:layout_centerHorizontal="true" />
+
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/setting"
+        android:paddingLeft="10dp"
+        android:paddingBottom="10dp"
+        android:src="@drawable/ic_setting"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentStart="true" />
+
+    <ImageView
+        android:layout_width="65dp"
+        android:layout_height="65dp"
+        android:id="@+id/shuffle"
+        android:layout_marginTop="17dp"
+        android:layout_marginLeft="17dp"
+        android:src="@drawable/shuffle"
+        android:layout_below="@+id/timer"
+        android:layout_alignStart="@+id/record" />
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/about"
+        android:src="@drawable/ic_about"
+        android:layout_alignTop="@+id/setting"
+        android:layout_toEndOf="@+id/lastQuestion" />
+
+    <ImageView
+        android:layout_width="108dp"
+        android:layout_height="90dp"
+        android:id="@+id/replay"
+        android:src="@drawable/headset"
+        android:layout_alignBottom="@+id/timer"
+        android:layout_toEndOf="@+id/timer" />
+
+    <ImageView
+        android:layout_width="95dp"
+        android:layout_height="95dp"
+        android:id="@+id/save"
+        android:layout_marginRight="5dp"
+        android:src="@drawable/save"
+        android:layout_below="@+id/timer"
+        android:layout_alignEnd="@+id/replay" />
+
+    <ImageView
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:id="@+id/question_list"
+        android:src="@drawable/question_list"
+        android:layout_below="@+id/timer"
+        android:layout_centerHorizontal="true" />
+
+
+    <com.software.shell.fab.ActionButton
+        android:id="@+id/action_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:layout_marginRight="@dimen/fab_margin"
+        android:layout_marginBottom="@dimen/fab_margin" />
+</RelativeLayout>
