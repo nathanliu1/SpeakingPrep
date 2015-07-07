@@ -1,39 +1,47 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:fab="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
     android:layout_height="match_parent" android:paddingLeft="0dp"
     android:paddingRight="0dp"
     android:paddingTop="0dp"
     android:paddingBottom="0dp" tools:context=".MainActivityFragment"
-    android:id="@+id/layout">
+    android:id="@+id/layout"
+    tools:showIn="@layout/activity_main">
 
-    <Button
+    <ImageView
         android:layout_width="50dp"
         android:layout_height="200dp"
-        android:text="Next"
-        android:id="@+id/nextQuestion"
-        android:background="@android:color/transparent"
-        android:layout_alignParentTop="true"
+        android:id="@+id/previous_question"
+        android:src="@drawable/previous_question"
+        android:layout_alignParentTop="true" />
+
+    <ImageView
+        android:layout_width="50dp"
+        android:layout_height="200dp"
+        android:id="@+id/next_question"
+        android:src="@drawable/next_question"
         android:layout_alignParentEnd="true" />
 
-    <Button
-        android:layout_width="50dp"
-        android:layout_height="200dp"
-        android:text="Last"
-        android:id="@+id/lastQuestion"
-        android:background="@android:color/transparent"
-        android:layout_alignTop="@+id/nextQuestion"
-        android:layout_alignParentStart="true" />
-
-    <TextView
-        android:layout_width="200dp"
+    <ca.uwaterloo.speakingprep.CustomTextView
+        android:layout_width="280dp"
         android:layout_height="wrap_content"
         android:text="Can you tell me a little bit about yourself?"
-        android:textSize="30dp"
-        android:layout_marginTop="20dp"
-        android:id="@+id/textView"
+        android:textSize="35dp"
+        android:gravity="center"
+        android:layout_marginTop="50dp"
+        android:id="@+id/question"
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true" />
+
+    <ca.uwaterloo.speakingprep.CustomTextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Ready For Recording"
+        android:textSize="20dp"
+        android:textColor="#00B300"
+        android:id="@+id/status"
+        android:layout_below="@+id/previous_question"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="24dp" />
 
     <ImageView
         android:layout_width="105dp"
@@ -79,7 +87,7 @@
         android:id="@+id/about"
         android:src="@drawable/ic_about"
         android:layout_alignTop="@+id/setting"
-        android:layout_toEndOf="@+id/lastQuestion" />
+        android:layout_alignStart="@+id/record" />
 
     <ImageView
         android:layout_width="108dp"
@@ -115,4 +123,5 @@
         android:layout_alignParentRight="true"
         android:layout_marginRight="@dimen/fab_margin"
         android:layout_marginBottom="@dimen/fab_margin" />
+
 </RelativeLayout>

@@ -1,6 +1,8 @@
 package ca.uwaterloo.speakingprep;
 
 import android.graphics.Color;
+import android.graphics.PorterDuff;
+import android.media.Image;
 import android.media.MediaPlayer;
 import android.media.MediaRecorder;
 import android.os.Environment;
@@ -8,12 +10,18 @@ import android.support.v4.app.Fragment;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.TextView;
+import android.widget.Toast;
+
 import com.software.shell.fab.*;
 
 import java.io.IOException;
+import java.util.Timer;
+import java.util.TimerTask;
 
 
 /**
@@ -26,9 +34,13 @@ public class MainActivityFragment extends Fragment {
     private MediaRecorder mRecorder = null;
     private MediaPlayer mPlayer = null;
     private ImageView record = null;
+    private TextView status = null;
     private boolean isRecording = false;
     private boolean isPlaying = false;
     private ActionButton actionButton;
+    private Timer timer;
+    private ImageView nextQuestion = null;
+    private ImageView previousQuestion = null;
 
     public MainActivityFragment() {
     }
@@ -39,6 +51,42 @@ public class MainActivityFragment extends Fragment {
         View rootView = inflater.inflate(R.layout.fragment_main, container, false);
         mFileName = Environment.getExternalStorageDirectory().getAbsolutePath();
         mFileName += "/audiorecordtest.3gp";
+
+        status = (TextView)rootView.findViewById(R.id.status);
+
+        nextQuestion = (ImageView)rootView.findViewById(R.id.next_question);
+        nextQuestion.setImageAlpha(255/4);
+        nextQuestion.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                switch (event.getAction()) {
+                    case (MotionEvent.ACTION_DOWN):
+                        nextQuestion.setImageAlpha(255);
+                        return true;
+                    case (MotionEvent.ACTION_UP):
+                        nextQuestion.setImageAlpha(255 / 4);
+                        return true;
+                }
+                return false;
+            }
+        });
+
+        previousQuestion = (ImageView)rootView.findViewById(R.id.previous_question);
+        previousQuestion.setImageAlpha(255/4);
+        previousQuestion.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                switch (event.getAction()) {
+                    case (MotionEvent.ACTION_DOWN):
+                        previousQuestion.setImageAlpha(255);
+                        return true;
+                    case (MotionEvent.ACTION_UP):
+                        previousQuestion.setImageAlpha(255 / 4);
+                        return true;
+                }
+                return false;
+            }
+        });
 
         record = (ImageView) rootView.findViewById(R.id.record);
         record.setOnClickListener(new View.OnClickListener(){
@@ -53,8 +101,6 @@ public class MainActivityFragment extends Fragment {
         actionButton.setImageDrawable(getResources().getDrawable(R.drawable.fab_plus_icon));
         actionButton.setButtonColor(Color.parseColor("#E91E63"));
         actionButton.setButtonColorPressed(Color.parseColor("#D81B60"));
-        actionButton.setRippleEffectEnabled(true);
-
 
         //playButton = (Button) rootView.findViewById(R.id.play);
         //playButton.setOnClickListener(new View.OnClickListener(){
@@ -79,11 +125,44 @@ public class MainActivityFragment extends Fragment {
                 mRecorder.prepare();
                 mRecorder.start();
             } catch (Exception e) {
-                Log.e(LOG_TAG, "prepare() failed");
+                Toast.makeText(getActivity().getApplicationContext(), "Failed to record. Please try again.", Toast.LENGTH_SHORT).show();
+                return;
             }
 
+            // Change record button to red
+            record.setColorFilter(Color.parseColor("#CC0000"), PorterDuff.Mode.SRC_ATOP);
+
+            // Change status and its color
+            status.setTextColor(Color.parseColor("#CC0000"));
+            status.setText("Recording.");
+            timer = new Timer();
+            timer.schedule(new TimerTask() {
+                @Override
+                public void run() {
+                    getActivity().runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            switch (status.getText().toString()) {
+                                case "Recording.":
+                                    status.setText("Recording..");
+                                    break;
+                                case "Recording..":
+                                    status.setText("Recording...");
+                                    break;
+                                default:
+                                    status.setText("Recording.");
+                                    break;
+                            }
+                        }
+                    });
+                }
+            },1000,1000);
             isRecording = true;
         } else {
+            record.setColorFilter(null);
+            status.setTextColor(Color.parseColor("#00B300"));
+            status.setText("Ready For Recording");
+            timer.cancel();
             mRecorder.stop();
             mRecorder.release();
             mRecorder = null;
