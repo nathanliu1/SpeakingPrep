@@ -1,11 +1,17 @@
 package ca.uwaterloo.speakingprep;
 
+import android.app.Dialog;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Path;
 import android.graphics.PorterDuff;
 import android.graphics.Rect;
+import android.graphics.drawable.BitmapDrawable;
 import android.media.Image;
 import android.media.MediaPlayer;
 import android.media.MediaRecorder;
+import android.nfc.Tag;
 import android.os.Environment;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
@@ -40,6 +46,7 @@ public class MainActivityFragment extends Fragment {
     private static MediaRecorder mRecorder = null;
     private MediaPlayer mPlayer = null;
     private ImageView record = null;
+    private ImageView aboutAuthor = null;
     private TextView status = null;
     private TextView question = null;
     private boolean isRecording = false;
@@ -52,13 +59,23 @@ public class MainActivityFragment extends Fragment {
     private AlphaAnimation fadeOut = new AlphaAnimation(1f,0f);
     private boolean isAnimating = false; // Check if animation is going on
     private boolean isNext = true; // Check if user wants to go to next question or previous question
+    private TextView timerTV = null;
+
     public MainActivityFragment() {
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View rootView = inflater.inflate(R.layout.fragment_main, container, false);
+        final View rootView = inflater.inflate(R.layout.fragment_main, container, false);
+
+        timerTV = (TextView)rootView.findViewById(R.id.timer_text);
+        timerTV.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v) {
+                Log.d(LOG_TAG,"Timer Instruction Clicked");
+            }
+        });
 
         mFileName = Environment.getExternalStorageDirectory().getAbsolutePath();
         mFileName += "/audiorecordtest.3gp";
@@ -74,18 +91,21 @@ public class MainActivityFragment extends Fragment {
         nextQuestion.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
-                switch (event.getAction()) {
-                    case (MotionEvent.ACTION_DOWN):
-                        nextQuestion.setImageAlpha(255);
-                        return true;
-                    case (MotionEvent.ACTION_UP):
-                        // Next Question
-                        nextQuestion.setImageAlpha(255 / 4);
-                        isNext = true;
-                        if (!isAnimating) {
-                            question.startAnimation(fadeOut);
-                        }
-                        return true;
+                // You can only change questions when you are not recording
+                if (!isRecording) {
+                    switch (event.getAction()) {
+                        case (MotionEvent.ACTION_DOWN):
+                            nextQuestion.setImageAlpha(255);
+                            return true;
+                        case (MotionEvent.ACTION_UP):
+                            // Next Question
+                            nextQuestion.setImageAlpha(255 / 4);
+                            isNext = true;
+                            if (!isAnimating) {
+                                question.startAnimation(fadeOut);
+                            }
+                            return true;
+                    }
                 }
                 return false;
             }
@@ -96,18 +116,21 @@ public class MainActivityFragment extends Fragment {
         previousQuestion.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
-                switch (event.getAction()) {
-                    case (MotionEvent.ACTION_DOWN):
-                        previousQuestion.setImageAlpha(255);
-                        return true;
-                    case (MotionEvent.ACTION_UP):
-                        // Previous Question
-                        previousQuestion.setImageAlpha(255 / 4);
-                        isNext = false;
-                        if (!isAnimating) {
-                            question.startAnimation(fadeOut);
-                        }
-                        return true;
+                // You can only change questions when you are not recording
+                if (!isRecording) {
+                    switch (event.getAction()) {
+                        case (MotionEvent.ACTION_DOWN):
+                            previousQuestion.setImageAlpha(255);
+                            return true;
+                        case (MotionEvent.ACTION_UP):
+                            // Previous Question
+                            previousQuestion.setImageAlpha(255 / 4);
+                            isNext = false;
+                            if (!isAnimating) {
+                                question.startAnimation(fadeOut);
+                            }
+                            return true;
+                    }
                 }
                 return false;
             }
@@ -121,6 +144,16 @@ public class MainActivityFragment extends Fragment {
             }
         });
 
+        aboutAuthor = (ImageView) rootView.findViewById(R.id.about);
+        aboutAuthor.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                final Dialog dialog = new Dialog(rootView.getContext());
+                dialog.setContentView(R.layout.about_author);
+                dialog.setTitle("About Authors");
+                dialog.show();
+            }
+        });
         // Configure action button
         actionButton = (ActionButton) rootView.findViewById(R.id.action_button);
         actionButton.setImageDrawable(getResources().getDrawable(R.drawable.fab_plus_icon));
