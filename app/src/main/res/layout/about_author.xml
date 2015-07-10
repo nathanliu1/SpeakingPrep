@@ -67,7 +67,7 @@
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceLarge"
         android:text="Q: Who are we?
-        \nA: We are second year computer and mechatronic engineering students from University of Waterloo, Canada.
+        \nA: We are second year Computer and Mechatronics Engineering students from University of Waterloo, Canada.
         \n\nQ: Why do we create this app?
         \nA: Because we are terrible at job interview and we think that the traditional ways to practice interviews (memorize answers, practice with friends blah blah blah) are not working for us. As a result, we invent our own way to practice for interview, which involves record, replay, improve and redo."
         android:id="@+id/textView4"

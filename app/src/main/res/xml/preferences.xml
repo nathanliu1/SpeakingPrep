@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <PreferenceCategory android:title="General Setting" >
+        <CheckBoxPreference
+            android:icon="@drawable/ic_noob"
+            android:title="Noobie Tips"
+            android:defaultValue="true"
+            android:summary="Show intructions under each icon in the main page"
+            android:key="noobieTips" />
+        <CheckBoxPreference
+            android:icon="@drawable/ic_save"
+            android:title="Auto Save"
+            android:defaultValue="false"
+            android:summary="Auto save audio file to internal storage"
+            android:key="autoSave" />
+    </PreferenceCategory>
+
+
+    <PreferenceCategory android:title="Theme Setting">
+
+    </PreferenceCategory>
+
+    <PreferenceCategory android:title="Others">
+        <Preference
+            android:icon="@drawable/ic_bug"
+            android:title="Bug Report"
+            android:key="noobieTips" />
+        <Preference
+            android:icon="@drawable/ic_rate"
+            android:title="Rate This App"
+            android:key="noobieTips" />
+    </PreferenceCategory>
+</PreferenceScreen>

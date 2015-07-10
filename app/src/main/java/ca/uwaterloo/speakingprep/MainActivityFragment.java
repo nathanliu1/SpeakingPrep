@@ -1,6 +1,9 @@
 package ca.uwaterloo.speakingprep;
 
+import android.app.AlertDialog;
 import android.app.Dialog;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
@@ -40,21 +43,36 @@ public class MainActivityFragment extends Fragment {
     private static String mFileName = null;
     private static MediaRecorder mRecorder = null;
     private MediaPlayer mPlayer = null;
-    private ImageView record = null;
+    private static ImageView record = null;
+    private TextView recordTV = null;
+    private ImageView timer = null;
+    private TextView timerTV = null;
+    private ImageView replay = null;
+    private TextView replayTV = null;
+    private ImageView shuffle = null;
+    private TextView shuffleTV = null;
+    private ImageView questionList = null;
+    private TextView questionListTV = null;
+    private ImageView save = null;
+    private TextView saveTV = null;
+    private TextView addAQuestionTV = null;
     private ImageView aboutAuthor = null;
-    private TextView status = null;
+    private ImageView setting = null;
+    private static TextView status = null;
     private TextView question = null;
-    private boolean isRecording = false;
+    private static boolean isRecording = false;
     private boolean isPlaying = false;
     private ActionButton actionButton;
-    private Timer timer;
+    private static Timer mTimer;
     private ImageView nextQuestion = null;
     private ImageView previousQuestion = null;
     private AlphaAnimation fadeIn = new AlphaAnimation(0f,1f);
     private AlphaAnimation fadeOut = new AlphaAnimation(1f,0f);
     private boolean isAnimating = false; // Check if animation is going on
     private boolean isNext = true; // Check if user wants to go to next question or previous question
-    private TextView timerTV = null;
+    private static int secondElapsed = 0;
+    private static int minuteElapsed = 0;
+    private static TimerTask updateStatus = null;
 
     public MainActivityFragment() {
     }
@@ -63,12 +81,63 @@ public class MainActivityFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         final View rootView = inflater.inflate(R.layout.fragment_main, container, false);
-
+        recordTV = (TextView)rootView.findViewById(R.id.record_text);
+        recordTV.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v) {
+                buildDialog("Record","Record your answer. Press to start recording, press again to stop recording.",rootView.getContext());
+            }
+        });
+        timer = (ImageView)rootView.findViewById(R.id.timer);
         timerTV = (TextView)rootView.findViewById(R.id.timer_text);
         timerTV.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v) {
-                Log.d(LOG_TAG,"Timer Instruction Clicked");
+                buildDialog("Timer","Set a preparation time and maximum time for recording.",rootView.getContext());
+            }
+        });
+
+        replay = (ImageView)rootView.findViewById(R.id.replay);
+        replayTV = (TextView)rootView.findViewById(R.id.replay_text);
+        replayTV.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v) {
+                buildDialog("Replay","Replay your previous recorded answer. You can also enable auto replay in the setting so that you don't need to press this button every time",rootView.getContext());
+            }
+        });
+
+        shuffle = (ImageView)rootView.findViewById(R.id.shuffle);
+        shuffleTV = (TextView)rootView.findViewById(R.id.shuffle_text);
+        shuffleTV.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                buildDialog("Shuffle","Shuffle your questions",rootView.getContext());
+            }
+        });
+
+        questionList = (ImageView)rootView.findViewById(R.id.question_list);
+        questionListTV = (TextView)rootView.findViewById(R.id.question_list_text);
+        questionListTV.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v) {
+                buildDialog("Question List","Display a collection of your questions",rootView.getContext());
+            }
+        });
+
+        save = (ImageView)rootView.findViewById(R.id.save);
+        saveTV = (TextView)rootView.findViewById(R.id.save_text);
+        saveTV.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                buildDialog("Save","Save your recorded answer to your internal storage. You can also enable auto save in the setting so that you don't need to press this button every time",rootView.getContext());
+            }
+        });
+
+        addAQuestionTV = (TextView)rootView.findViewById(R.id.add_a_question_text);
+        addAQuestionTV.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v) {
+                buildDialog("Add A Question","Add a question to your collection",rootView.getContext());
             }
         });
 
@@ -161,7 +230,7 @@ public class MainActivityFragment extends Fragment {
                         i.setType("message/rfc822");
                         i.putExtra(Intent.EXTRA_EMAIL  , new String[]{"chewong@uwaterloo.ca"});
                         try {
-                            startActivity(Intent.createChooser(i, "Send mail..."));
+                            startActivity(Intent.createChooser(i, "Send me an e-mail"));
                         } catch (android.content.ActivityNotFoundException ex) {
                             Toast.makeText(getActivity(), "There are no email clients installed.", Toast.LENGTH_SHORT).show();
                         }
@@ -192,6 +261,15 @@ public class MainActivityFragment extends Fragment {
         //    }
         //});
 
+        setting = (ImageView)rootView.findViewById(R.id.setting);
+        setting.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v) {
+                Intent goToSetting = new Intent(rootView.getContext(),Setting.class);
+                startActivity(goToSetting);
+            }
+        });
+
         return rootView;
     }
 
@@ -216,41 +294,44 @@ public class MainActivityFragment extends Fragment {
 
             // Change status and its color
             status.setTextColor(Color.parseColor("#CC0000"));
-            status.setText("Recording.");
-            timer = new Timer();
-            timer.schedule(new TimerTask() {
+            status.setText(String.format("%02d:%02d", minuteElapsed, secondElapsed));
+            mTimer = new Timer();
+            updateStatus = new TimerTask() {
                 @Override
                 public void run() {
                     getActivity().runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            switch (status.getText().toString()) {
-                                case "Recording.":
-                                    status.setText("Recording..");
-                                    break;
-                                case "Recording..":
-                                    status.setText("Recording...");
-                                    break;
-                                default:
-                                    status.setText("Recording.");
-                                    break;
+                            // Counter
+                            if (secondElapsed == 59) {
+                                secondElapsed = 0;
+                                minuteElapsed++;
+                            } else {
+                                secondElapsed++;
                             }
+                            status.setText(String.format("%02d:%02d",minuteElapsed,secondElapsed));
                         }
                     });
                 }
-            }, 500, 500);
+            };
+
+            mTimer.schedule(updateStatus,1000,1000);
             isRecording = true;
         } else {
             record.setColorFilter(null);
             status.setTextColor(Color.parseColor("#00B300"));
             status.setText("Ready For Recording");
+            secondElapsed = 0;
+            minuteElapsed = 0;
             if (timer != null && mRecorder != null) {
-                timer.cancel();
+                mTimer.purge();
+                mTimer.cancel();
                 mRecorder.stop();
                 mRecorder.release();
                 mRecorder = null;
             }
             isRecording = false;
+            Toast.makeText(getActivity(),"Record Successful. Available for replay and save",Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -320,8 +401,33 @@ public class MainActivityFragment extends Fragment {
 
     public static void release() {
         if(mRecorder != null) {
+            mRecorder.stop();
             mRecorder.release();
             mRecorder = null;
         }
+        if (mTimer != null) {
+            mTimer.purge();
+            mTimer.cancel();
+        }
+        // Stop recording
+        status.setText("Ready For Recording");
+        status.setTextColor(Color.parseColor("#00B300"));
+        record.setColorFilter(null);
+        secondElapsed = 0;
+        minuteElapsed = 0;
+        isRecording = false;
+    }
+
+    private void buildDialog(String title, String message, Context context) {
+        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(context);
+
+        alertDialogBuilder.setTitle(title)
+                .setMessage(message)
+                .setPositiveButton("Got it",new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        dialog.cancel();
+                    }
+                });
+        alertDialogBuilder.create().show();
     }
 }
