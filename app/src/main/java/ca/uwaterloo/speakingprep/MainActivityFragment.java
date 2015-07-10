@@ -1,30 +1,25 @@
 package ca.uwaterloo.speakingprep;
 
 import android.app.Dialog;
-import android.graphics.Bitmap;
-import android.graphics.Canvas;
+import android.content.Intent;
 import android.graphics.Color;
-import android.graphics.Path;
 import android.graphics.PorterDuff;
-import android.graphics.Rect;
-import android.graphics.drawable.BitmapDrawable;
-import android.media.Image;
 import android.media.MediaPlayer;
 import android.media.MediaRecorder;
-import android.nfc.Tag;
+import android.net.Uri;
 import android.os.Environment;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
-import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
-import android.view.animation.AnimationSet;
-import android.view.animation.TranslateAnimation;
+
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -150,8 +145,37 @@ public class MainActivityFragment extends Fragment {
             public void onClick(View v) {
                 final Dialog dialog = new Dialog(rootView.getContext());
                 dialog.setContentView(R.layout.about_author);
-                dialog.setTitle("About Authors");
+                dialog.setTitle("About Authors & This App");
+                WindowManager.LayoutParams lp = new WindowManager.LayoutParams();
+                lp.copyFrom(dialog.getWindow().getAttributes());
+                lp.width = WindowManager.LayoutParams.MATCH_PARENT;
+
                 dialog.show();
+                dialog.getWindow().setAttributes(lp);
+
+                Button contact = (Button)dialog.findViewById(R.id.contact_us);
+                contact.setOnClickListener(new View.OnClickListener(){
+                    @Override
+                    public void onClick(View v) {
+                        Intent i = new Intent(Intent.ACTION_SEND);
+                        i.setType("message/rfc822");
+                        i.putExtra(Intent.EXTRA_EMAIL  , new String[]{"chewong@uwaterloo.ca"});
+                        try {
+                            startActivity(Intent.createChooser(i, "Send mail..."));
+                        } catch (android.content.ActivityNotFoundException ex) {
+                            Toast.makeText(getActivity(), "There are no email clients installed.", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                });
+
+                Button github = (Button)dialog.findViewById(R.id.github);
+                github.setOnClickListener(new View.OnClickListener(){
+                    @Override
+                    public void onClick(View v) {
+                        Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://www.github.com/chewong/SpeakingPrep"));
+                        startActivity(browserIntent);
+                    }
+                });
             }
         });
         // Configure action button
@@ -172,7 +196,7 @@ public class MainActivityFragment extends Fragment {
     }
 
     private void onRecord() {
-        if (!isRecording) {
+        if (!isRecording && !isAnimating) {
             mRecorder = new MediaRecorder();
             mRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
             mRecorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
@@ -220,10 +244,12 @@ public class MainActivityFragment extends Fragment {
             record.setColorFilter(null);
             status.setTextColor(Color.parseColor("#00B300"));
             status.setText("Ready For Recording");
-            timer.cancel();
-            mRecorder.stop();
-            mRecorder.release();
-            mRecorder = null;
+            if (timer != null && mRecorder != null) {
+                timer.cancel();
+                mRecorder.stop();
+                mRecorder.release();
+                mRecorder = null;
+            }
             isRecording = false;
         }
     }

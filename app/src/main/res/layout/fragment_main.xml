@@ -12,25 +12,29 @@
         android:layout_height="200dp"
         android:id="@+id/previous_question"
         android:src="@drawable/previous_question"
-        android:layout_alignParentTop="true" />
+        android:layout_alignParentTop="true"
+        android:layout_above="@+id/status" />
 
     <ImageView
         android:layout_width="50dp"
         android:layout_height="200dp"
         android:id="@+id/next_question"
         android:src="@drawable/next_question"
-        android:layout_alignParentEnd="true" />
+        android:layout_alignParentEnd="true"
+        android:layout_above="@+id/status"
+        android:layout_alignParentTop="true" />
 
     <ca.uwaterloo.speakingprep.CustomTextView
         android:layout_width="280dp"
-        android:layout_height="wrap_content"
+        android:layout_height="1000dp"
         android:text="Can you tell me a little bit about yourself?"
         android:textSize="35dp"
         android:gravity="center"
         android:id="@+id/question"
-        android:layout_centerHorizontal="true"
         android:layout_alignParentTop="true"
-        android:layout_alignBottom="@+id/previous_question" />
+        android:layout_alignBottom="@+id/previous_question"
+        android:layout_alignEnd="@+id/replay"
+        android:layout_toEndOf="@+id/previous_question" />
 
     <ca.uwaterloo.speakingprep.CustomTextView
         android:layout_width="wrap_content"
@@ -39,9 +43,9 @@
         android:textSize="20dp"
         android:textColor="#00B300"
         android:id="@+id/status"
-        android:layout_below="@+id/previous_question"
+        android:layout_above="@+id/timer"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="24dp" />
+        android:layout_marginBottom="25dp" />
 
     <ImageView
         android:layout_width="105dp"
@@ -158,7 +162,7 @@
     <ca.uwaterloo.speakingprep.CustomTextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Record"
+        android:text=" Record"
         android:id="@+id/record_text"
         android:layout_marginBottom="-5dp"
         android:layout_above="@+id/shuffle"

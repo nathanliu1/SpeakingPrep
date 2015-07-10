@@ -1,10 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="360dp"
+    android:fillViewport="false"
+    >
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="370dp" android:layout_height="match_parent">
+    android:layout_width="match_parent" android:layout_height="match_parent">
 
     <ImageView
-        android:layout_width="95dp"
-        android:layout_height="95dp"
+        android:layout_width="98dp"
+        android:layout_height="98dp"
         android:id="@+id/ernest"
         android:src="@drawable/ernest"
         android:layout_marginTop="31dp"
@@ -16,8 +21,8 @@
         android:layout_height="95dp"
         android:id="@+id/imageView2"
         android:src="@drawable/haven"
-        android:layout_marginLeft="15dp"
-        android:layout_marginRight="15dp"
+        android:layout_marginLeft="20dp"
+        android:layout_marginRight="20dp"
         android:layout_alignTop="@+id/ernest"
         android:layout_centerHorizontal="true" />
 
@@ -28,7 +33,7 @@
         android:text="Ernest Wong"
         android:id="@+id/textView"
         android:layout_below="@+id/ernest"
-        android:layout_alignStart="@+id/ernest" />
+        android:layout_alignEnd="@+id/ernest" />
 
     <ca.uwaterloo.speakingprep.CustomTextView
         android:layout_width="wrap_content"
@@ -57,4 +62,46 @@
         android:layout_below="@+id/nathan"
         android:layout_alignStart="@+id/nathan" />
 
+    <ca.uwaterloo.speakingprep.CustomTextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="Q: Who are we?
+        \nA: We are second year computer and mechatronic engineering students from University of Waterloo, Canada.
+        \n\nQ: Why do we create this app?
+        \nA: Because we are terrible at job interview and we think that the traditional ways to practice interviews (memorize answers, practice with friends blah blah blah) are not working for us. As a result, we invent our own way to practice for interview, which involves record, replay, improve and redo."
+        android:id="@+id/textView4"
+        android:textSize="18dp"
+        android:layout_marginTop="70dp"
+        android:layout_marginLeft="25dp"
+        android:layout_marginRight="20dp"
+        android:layout_marginBottom="60dp"
+        android:layout_below="@+id/textView"
+        android:layout_alignParentEnd="true" />
+
+    <ca.uwaterloo.speakingprep.CustomButton
+        android:layout_width="180dp"
+        android:layout_height="wrap_content"
+        android:text="Contact Us"
+        android:drawableLeft="@drawable/ic_mail"
+        android:drawableRight="@drawable/ic_mail"
+        android:id="@+id/contact_us"
+        android:layout_marginTop="10dp"
+        android:layout_below="@+id/textView"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentEnd="true" />
+
+    <ca.uwaterloo.speakingprep.CustomButton
+        android:layout_width="180dp"
+        android:layout_height="wrap_content"
+        android:text="GitHub"
+        android:id="@+id/github"
+        android:drawableLeft="@drawable/ic_github"
+        android:drawableRight="@drawable/ic_github"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentEnd="true" />
+
+
 </RelativeLayout>
+</ScrollView>
