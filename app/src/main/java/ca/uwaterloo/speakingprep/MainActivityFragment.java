@@ -45,15 +45,15 @@ public class MainActivityFragment extends Fragment {
     private MediaPlayer mPlayer = null;
     private static ImageView record = null;
     private TextView recordTV = null;
-    private ImageView timer = null;
+    private static ImageView timer = null;
     private TextView timerTV = null;
-    private ImageView replay = null;
+    private static ImageView replay = null;
     private TextView replayTV = null;
-    private ImageView shuffle = null;
+    private static ImageView shuffle = null;
     private TextView shuffleTV = null;
-    private ImageView questionList = null;
+    private static ImageView questionList = null;
     private TextView questionListTV = null;
-    private ImageView save = null;
+    private static ImageView save = null;
     private TextView saveTV = null;
     private TextView addAQuestionTV = null;
     private ImageView aboutAuthor = null;
@@ -212,41 +212,46 @@ public class MainActivityFragment extends Fragment {
         aboutAuthor.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                final Dialog dialog = new Dialog(rootView.getContext());
-                dialog.setContentView(R.layout.about_author);
-                dialog.setTitle("About Authors & This App");
-                WindowManager.LayoutParams lp = new WindowManager.LayoutParams();
-                lp.copyFrom(dialog.getWindow().getAttributes());
-                lp.width = WindowManager.LayoutParams.MATCH_PARENT;
+                if (!isRecording) {
+                    final Dialog dialog = new Dialog(rootView.getContext());
+                    dialog.setContentView(R.layout.about_author);
+                    dialog.setTitle("About Authors & This App");
+                    WindowManager.LayoutParams lp = new WindowManager.LayoutParams();
+                    lp.copyFrom(dialog.getWindow().getAttributes());
+                    lp.width = WindowManager.LayoutParams.MATCH_PARENT;
 
-                dialog.show();
-                dialog.getWindow().setAttributes(lp);
+                    dialog.show();
+                    dialog.getWindow().setAttributes(lp);
 
-                Button contact = (Button)dialog.findViewById(R.id.contact_us);
-                contact.setOnClickListener(new View.OnClickListener(){
-                    @Override
-                    public void onClick(View v) {
-                        Intent i = new Intent(Intent.ACTION_SEND);
-                        i.setType("message/rfc822");
-                        i.putExtra(Intent.EXTRA_EMAIL  , new String[]{"chewong@uwaterloo.ca"});
-                        try {
-                            startActivity(Intent.createChooser(i, "Send me an e-mail"));
-                        } catch (android.content.ActivityNotFoundException ex) {
-                            Toast.makeText(getActivity(), "There are no email clients installed.", Toast.LENGTH_SHORT).show();
+                    Button contact = (Button) dialog.findViewById(R.id.contact_us);
+                    contact.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            Intent i = new Intent(Intent.ACTION_SEND);
+                            i.setType("message/rfc822");
+                            i.putExtra(Intent.EXTRA_EMAIL, new String[]{"chewong@uwaterloo.ca"});
+                            try {
+                                startActivity(Intent.createChooser(i, "Send me an e-mail"));
+                            } catch (android.content.ActivityNotFoundException ex) {
+                                Toast.makeText(getActivity(), "There are no email clients installed.", Toast.LENGTH_SHORT).show();
+                            }
                         }
-                    }
-                });
+                    });
 
-                Button github = (Button)dialog.findViewById(R.id.github);
-                github.setOnClickListener(new View.OnClickListener(){
-                    @Override
-                    public void onClick(View v) {
-                        Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://www.github.com/chewong/SpeakingPrep"));
-                        startActivity(browserIntent);
-                    }
-                });
+                    Button github = (Button) dialog.findViewById(R.id.github);
+                    github.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://www.github.com/chewong/SpeakingPrep"));
+                            startActivity(browserIntent);
+                        }
+                    });
+                } else {
+                    Toast.makeText(rootView.getContext(),"You have to stop recording first", Toast.LENGTH_SHORT).show();
+                }
             }
         });
+
         // Configure action button
         actionButton = (ActionButton) rootView.findViewById(R.id.action_button);
         actionButton.setImageDrawable(getResources().getDrawable(R.drawable.fab_plus_icon));
@@ -265,8 +270,12 @@ public class MainActivityFragment extends Fragment {
         setting.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v) {
-                Intent goToSetting = new Intent(rootView.getContext(),Setting.class);
-                startActivity(goToSetting);
+                if (!isRecording) {
+                    Intent goToSetting = new Intent(rootView.getContext(), Setting.class);
+                    startActivity(goToSetting);
+                } else {
+                    Toast.makeText(rootView.getContext(),"You have to stop recording first", Toast.LENGTH_SHORT).show();
+                }
             }
         });
 
@@ -275,12 +284,22 @@ public class MainActivityFragment extends Fragment {
 
     private void onRecord() {
         if (!isRecording && !isAnimating) {
+            // Create a media recorder and configure it
             mRecorder = new MediaRecorder();
             mRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
-            mRecorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
+            mRecorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
+            mRecorder.setAudioEncodingBitRate(44100);
             mRecorder.setOutputFile(mFileName);
             mRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
 
+            // Set other images' alpha to 255/4
+            timer.setImageAlpha(255/4);
+            replay.setImageAlpha(255/4);
+            shuffle.setImageAlpha(255/4);
+            questionList.setImageAlpha(255/4);
+            save.setImageAlpha(255/4);
+
+            // Prepare and start recording
             try {
                 mRecorder.prepare();
                 mRecorder.start();
@@ -318,6 +337,7 @@ public class MainActivityFragment extends Fragment {
             mTimer.schedule(updateStatus,1000,1000);
             isRecording = true;
         } else {
+            // Return to original state
             record.setColorFilter(null);
             status.setTextColor(Color.parseColor("#00B300"));
             status.setText("Ready For Recording");
@@ -331,6 +351,14 @@ public class MainActivityFragment extends Fragment {
                 mRecorder = null;
             }
             isRecording = false;
+
+            // Change images alpha back to normal
+            timer.setImageAlpha(255);
+            replay.setImageAlpha(255);
+            shuffle.setImageAlpha(255);
+            questionList.setImageAlpha(255);
+            save.setImageAlpha(255);
+
             Toast.makeText(getActivity(),"Record Successful. Available for replay and save",Toast.LENGTH_SHORT).show();
         }
     }
@@ -410,24 +438,33 @@ public class MainActivityFragment extends Fragment {
             mTimer.cancel();
         }
         // Stop recording
+        isRecording = false;
+    }
+
+    private void buildDialog(String title, String message, Context context) {
+        if (!isRecording) {
+            AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(context);
+            alertDialogBuilder.setTitle(title)
+                    .setMessage(message)
+                    .setPositiveButton("Got it", new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int id) {
+                            dialog.cancel();
+                        }
+                    });
+            alertDialogBuilder.create().show();
+        }
+    }
+
+    public static void resume() {
         status.setText("Ready For Recording");
         status.setTextColor(Color.parseColor("#00B300"));
         record.setColorFilter(null);
         secondElapsed = 0;
         minuteElapsed = 0;
-        isRecording = false;
-    }
-
-    private void buildDialog(String title, String message, Context context) {
-        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(context);
-
-        alertDialogBuilder.setTitle(title)
-                .setMessage(message)
-                .setPositiveButton("Got it",new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int id) {
-                        dialog.cancel();
-                    }
-                });
-        alertDialogBuilder.create().show();
+        timer.setImageAlpha(255);
+        replay.setImageAlpha(255);
+        shuffle.setImageAlpha(255);
+        questionList.setImageAlpha(255);
+        save.setImageAlpha(255);
     }
 }

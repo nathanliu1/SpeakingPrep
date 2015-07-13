@@ -1,12 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
-    <PreferenceCategory android:title="General Setting" >
+    <PreferenceCategory android:title="GENERAL SETTING">
         <CheckBoxPreference
             android:icon="@drawable/ic_noob"
             android:title="Noobie Tips"
             android:defaultValue="true"
-            android:summary="Show intructions under each icon in the main page"
+            android:summary="Show instructions under each icon in the main page"
             android:key="noobieTips" />
+        <CheckBoxPreference
+            android:icon="@drawable/ic_replay"
+            android:title="Auto Replay"
+            android:defaultValue="false"
+            android:summary="Auto reply audio file after recording"
+            android:key="autoSave" />
         <CheckBoxPreference
             android:icon="@drawable/ic_save"
             android:title="Auto Save"
@@ -16,11 +22,14 @@
     </PreferenceCategory>
 
 
-    <PreferenceCategory android:title="Theme Setting">
-
+    <PreferenceCategory android:title="THEME SETTING">
+        <Preference
+            android:icon="@drawable/ic_action_button"
+            android:title="Action Button"
+            android:key="noobieTips" />
     </PreferenceCategory>
 
-    <PreferenceCategory android:title="Others">
+    <PreferenceCategory android:title="OTHERS">
         <Preference
             android:icon="@drawable/ic_bug"
             android:title="Bug Report"
