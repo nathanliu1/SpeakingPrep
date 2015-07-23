@@ -23,6 +23,7 @@ import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
 
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -73,6 +74,12 @@ public class MainActivityFragment extends Fragment {
     private static int secondElapsed = 0;
     private static int minuteElapsed = 0;
     private static TimerTask updateStatus = null;
+    private int preparationTime = 0;
+    private int preparationMinute;
+    private int preparationSecond;
+    private int recordDuration = 0;
+    private EditText preparationTimeET;
+    private EditText recordDurationET;
 
     public MainActivityFragment() {
     }
@@ -89,6 +96,56 @@ public class MainActivityFragment extends Fragment {
             }
         });
         timer = (ImageView)rootView.findViewById(R.id.timer);
+        timer.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (!isRecording) {
+                    LayoutInflater li = LayoutInflater.from(rootView.getContext());
+                    final View promptsView = li.inflate(R.layout.prompts, null);
+                    AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(rootView.getContext());
+
+                    // Get EditText
+                    preparationTimeET = (EditText) promptsView.findViewById(R.id.preparationTime);
+                    recordDurationET = (EditText) promptsView.findViewById(R.id.recordDuration);
+
+                    if (preparationTime != 0){
+                        preparationTimeET.setText("" + preparationTime);
+                    }
+
+                    alertDialogBuilder.setView(promptsView);
+                    alertDialogBuilder
+                            .setTitle("Set Timer")
+                            .setCancelable(false)
+                            .setPositiveButton("OK",
+                                    new DialogInterface.OnClickListener() {
+                                        public void onClick(DialogInterface dialog, int id) {
+                                            // Get preparation time
+                                            if (preparationTimeET.getText().toString().equals("")) {
+                                                preparationTime = 0;
+                                            } else {
+                                                preparationTime = Integer.parseInt(preparationTimeET.getText().toString());
+                                            }
+
+                                            // Get record duration
+                                            if (recordDurationET.getText().toString().equals("")) {
+                                                recordDuration = 0;
+                                            } else {
+                                                recordDuration = Integer.parseInt(recordDurationET.getText().toString());
+                                            }
+                                        }
+                                    })
+                            .setNegativeButton("Cancel",
+                                    new DialogInterface.OnClickListener() {
+                                        public void onClick(DialogInterface dialog, int id) {
+                                            dialog.cancel();
+                                        }
+                                    });
+                    AlertDialog alertDialog = alertDialogBuilder.create();
+                    alertDialog.show();
+                }
+            }
+        });
+
         timerTV = (TextView)rootView.findViewById(R.id.timer_text);
         timerTV.setOnClickListener(new View.OnClickListener(){
             @Override
@@ -231,7 +288,7 @@ public class MainActivityFragment extends Fragment {
                             i.setType("message/rfc822");
                             i.putExtra(Intent.EXTRA_EMAIL, new String[]{"chewong@uwaterloo.ca"});
                             try {
-                                startActivity(Intent.createChooser(i, "Send me an e-mail"));
+                                startActivity(Intent.createChooser(i, "Send us an e-mail"));
                             } catch (android.content.ActivityNotFoundException ex) {
                                 Toast.makeText(getActivity(), "There are no email clients installed.", Toast.LENGTH_SHORT).show();
                             }
@@ -291,29 +348,28 @@ public class MainActivityFragment extends Fragment {
             mRecorder.setAudioEncodingBitRate(44100);
             mRecorder.setOutputFile(mFileName);
             mRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
-
             // Set other images' alpha to 255/4
             timer.setImageAlpha(255/4);
             replay.setImageAlpha(255/4);
-            shuffle.setImageAlpha(255/4);
-            questionList.setImageAlpha(255/4);
-            save.setImageAlpha(255/4);
+            shuffle.setImageAlpha(255 / 4);
+            questionList.setImageAlpha(255 / 4);
+            save.setImageAlpha(255 / 4);
 
-            // Prepare and start recording
-            try {
-                mRecorder.prepare();
-                mRecorder.start();
-            } catch (Exception e) {
-                Toast.makeText(getActivity().getApplicationContext(), "Failed to record. Please try again.", Toast.LENGTH_SHORT).show();
-                return;
+            // Get preparation time
+            preparationMinute = 0;
+            preparationSecond = 0;
+            while (preparationTime > 60) {
+                preparationTime -= 60;
+                preparationMinute++;
             }
+            preparationSecond = preparationTime;
+            preparationTime = Integer.parseInt(preparationTimeET.getText().toString());
 
             // Change record button to red
             record.setColorFilter(Color.parseColor("#CC0000"), PorterDuff.Mode.SRC_ATOP);
 
             // Change status and its color
             status.setTextColor(Color.parseColor("#CC0000"));
-            status.setText(String.format("%02d:%02d", minuteElapsed, secondElapsed));
             mTimer = new Timer();
             updateStatus = new TimerTask() {
                 @Override
@@ -321,22 +377,42 @@ public class MainActivityFragment extends Fragment {
                     getActivity().runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            // Counter
-                            if (secondElapsed == 59) {
-                                secondElapsed = 0;
-                                minuteElapsed++;
+                            // Count down
+                            if (preparationSecond != 0 || preparationMinute != 0) {
+                                status.setText(String.format("-%02d:%02d",preparationMinute,preparationSecond));
+                                if (preparationSecond == 0 && preparationMinute != 0) {
+                                    preparationSecond = 59;
+                                    preparationMinute--;
+                                } else {
+                                    preparationSecond--;
+                                }
                             } else {
-                                secondElapsed++;
+                                if (secondElapsed == 0 && minuteElapsed == 0) {
+                                    // Prepare and start recording
+                                    try {
+                                        mRecorder.prepare();
+                                        mRecorder.start();
+                                    } catch (Exception e) {
+                                        Toast.makeText(getActivity().getApplicationContext(), "Failed to record. Please try again.", Toast.LENGTH_SHORT).show();
+                                        return;
+                                    }
+                                }
+                                status.setText(String.format("%02d:%02d", minuteElapsed, secondElapsed));
+                                // Count up
+                                if (secondElapsed == 59) {
+                                    secondElapsed = 0;
+                                    minuteElapsed++;
+                                } else {
+                                    secondElapsed++;
+                                }
                             }
-                            status.setText(String.format("%02d:%02d",minuteElapsed,secondElapsed));
                         }
                     });
                 }
             };
-
-            mTimer.schedule(updateStatus,1000,1000);
+            mTimer.schedule(updateStatus,0,1000);
             isRecording = true;
-        } else {
+        } else if (isRecording && (secondElapsed > 0 || minuteElapsed > 0)) {
             // Return to original state
             record.setColorFilter(null);
             status.setTextColor(Color.parseColor("#00B300"));
@@ -360,6 +436,20 @@ public class MainActivityFragment extends Fragment {
             save.setImageAlpha(255);
 
             Toast.makeText(getActivity(),"Record Successful. Available for replay and save",Toast.LENGTH_SHORT).show();
+        } else {
+            mTimer.purge();
+            mTimer.cancel();
+            record.setColorFilter(null);
+            status.setTextColor(Color.parseColor("#00B300"));
+            status.setText("Ready For Recording");
+
+            // Change images alpha back to normal
+            timer.setImageAlpha(255);
+            replay.setImageAlpha(255);
+            shuffle.setImageAlpha(255);
+            questionList.setImageAlpha(255);
+            save.setImageAlpha(255);
+            isRecording = false;
         }
     }
 

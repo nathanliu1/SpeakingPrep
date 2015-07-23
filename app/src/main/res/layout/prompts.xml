@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/layout_root"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:orientation="vertical"
+    android:padding="10dp" >
+
+    <ca.uwaterloo.speakingprep.CustomTextView
+        android:id="@+id/textView1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Preparation Time: "
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentStart="true"
+        android:layout_marginTop="10dp"/>
+
+
+    <ca.uwaterloo.speakingprep.CustomEditText
+        android:id="@+id/preparationTime"
+        android:layout_width="168dp"
+        android:layout_height="wrap_content"
+        android:hint="in second"
+        android:inputType="number"
+        android:maxLength="3"
+        android:layout_alignParentTop="true"
+        android:layout_toEndOf="@+id/textView1" />
+
+    <ca.uwaterloo.speakingprep.CustomTextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="Record Duration:"
+        android:id="@+id/textView2"
+        android:layout_below="@+id/preparationTime"
+        android:layout_alignParentStart="true"
+        android:layout_marginTop="10dp"/>
+
+    <ca.uwaterloo.speakingprep.CustomEditText
+        android:layout_height="wrap_content"
+        android:inputType="number"
+        android:layout_width="168dp"
+        android:id="@+id/recordDuration"
+        android:hint="in second"
+        android:maxLength="3"
+        android:layout_below="@+id/preparationTime"
+        android:layout_toEndOf="@+id/textView1" />
+
+    <ca.uwaterloo.speakingprep.CustomTextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="15dp"
+        android:text="(Input nothing to have no preparation time or unlimited record duration)"
+        android:id="@+id/textView3"
+        android:layout_below="@+id/recordDuration"
+        android:layout_alignParentStart="true" />
+
+</RelativeLayout>
