@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent" android:layout_height="fill_parent"
+    android:padding="23dp">
+
+    <ca.uwaterloo.speakingprep.CustomTextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="18dp"
+        android:text="Category"
+        android:id="@+id/textView5"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentStart="true"
+        android:layout_marginTop="11dp"/>
+
+    <Spinner
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/spinner"
+        android:layout_alignTop="@+id/textView5"
+        android:layout_toEndOf="@+id/textView5" />
+
+    <ca.uwaterloo.speakingprep.CustomEditText
+        android:layout_width="400dp"
+        android:layout_height="wrap_content"
+        android:id="@+id/editText"
+        android:layout_marginTop="4dp"
+        android:layout_below="@+id/spinner"
+        android:layout_toEndOf="@+id/question"
+        android:textSize="18dp"/>
+
+    <ca.uwaterloo.speakingprep.CustomTextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="Question(s)"
+        android:id="@+id/question"
+        android:textSize="18dp"
+        android:layout_marginTop="50dp"
+        android:layout_alignStart="@+id/textView5" />
+
+    <ca.uwaterloo.speakingprep.CustomTextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="(Tips: Seperate multiple questions by pressing next line button on keyboard)"
+        android:id="@+id/textView6"
+        android:layout_below="@+id/editText"
+        android:layout_alignStart="@+id/editText"
+        android:textSize="13dp"/>
+</RelativeLayout>

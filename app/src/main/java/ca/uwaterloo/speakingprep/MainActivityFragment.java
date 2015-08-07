@@ -21,10 +21,12 @@ import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
-
+import android.os.Handler;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -101,15 +103,19 @@ public class MainActivityFragment extends Fragment {
             public void onClick(View v) {
                 if (!isRecording) {
                     LayoutInflater li = LayoutInflater.from(rootView.getContext());
-                    final View promptsView = li.inflate(R.layout.prompts, null);
+                    final View promptsView = li.inflate(R.layout.timer, null);
                     AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(rootView.getContext());
 
                     // Get EditText
                     preparationTimeET = (EditText) promptsView.findViewById(R.id.preparationTime);
                     recordDurationET = (EditText) promptsView.findViewById(R.id.recordDuration);
 
-                    if (preparationTime != 0){
+                    // Display time when user open timer dialog
+                    if (preparationTime != 0) {
                         preparationTimeET.setText("" + preparationTime);
+                    }
+                    if (recordDuration != 0) {
+                        recordDurationET.setText("" + recordDuration);
                     }
 
                     alertDialogBuilder.setView(promptsView);
@@ -155,6 +161,19 @@ public class MainActivityFragment extends Fragment {
         });
 
         replay = (ImageView)rootView.findViewById(R.id.replay);
+        replay.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onPlay();
+            }
+        });
+        replay.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+
+                return true;
+            }
+        });
         replayTV = (TextView)rootView.findViewById(R.id.replay_text);
         replayTV.setOnClickListener(new View.OnClickListener(){
             @Override
@@ -314,14 +333,80 @@ public class MainActivityFragment extends Fragment {
         actionButton.setImageDrawable(getResources().getDrawable(R.drawable.fab_plus_icon));
         actionButton.setButtonColor(Color.parseColor("#E91E63"));
         actionButton.setButtonColorPressed(Color.parseColor("#D81B60"));
+        actionButton.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v) {
+                LayoutInflater li = LayoutInflater.from(rootView.getContext());
+                final View addQuestionView = li.inflate(R.layout.add_question, null);
+                AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(rootView.getContext());
 
-        //playButton = (Button) rootView.findViewById(R.id.play);
-        //playButton.setOnClickListener(new View.OnClickListener(){
-        //    @Override
-        //    public void onClick(View v) {
-        //        onPlay();
-        //    }
-        //});
+                // Set spinner and onItemSelectedlistener
+                final Spinner category = (Spinner)addQuestionView.findViewById(R.id.spinner);
+                category.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                    @Override
+                    public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                        String categoryName = ((TextView) view).getText().toString();
+                        // If user wants to add a category
+                        if (categoryName.equals("<Add A Category>")) {
+                            LayoutInflater li = LayoutInflater.from(rootView.getContext());
+                            final View addCategoryView = li.inflate(R.layout.add_category, null);
+                            final EditText et = (EditText)addCategoryView.findViewById(R.id.editText);
+                            AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(rootView.getContext());
+                            alertDialogBuilder.setView(addCategoryView);
+                            alertDialogBuilder
+                                    .setTitle("Add A Category")
+                                    .setCancelable(false)
+                                    .setPositiveButton("Add",
+                                            new DialogInterface.OnClickListener() {
+                                                public void onClick(DialogInterface dialog, int id) {
+                                                    // Check if user inputs nothing
+                                                    if (!et.getText().toString().equals("")) {
+                                                        QuestionCategory.addCategory(et.getText().toString());
+                                                    } else {
+                                                        Toast.makeText(rootView.getContext(),"Invalid Input",Toast.LENGTH_SHORT).show();
+                                                        category.setSelection(0);
+                                                    }
+                                                }
+                                            })
+                                    .setNegativeButton("Cancel",
+                                            new DialogInterface.OnClickListener() {
+                                                public void onClick(DialogInterface dialog, int id) {
+                                                    category.setSelection(0);
+                                                    dialog.cancel();
+                                                }
+                                            });
+                            AlertDialog alertDialog = alertDialogBuilder.create();
+                            alertDialog.show();
+                        } else {
+
+                        }
+                    }
+
+                    @Override
+                    public void onNothingSelected(AdapterView<?> parent) { }
+                });
+                category.setAdapter(new QuestionCategory(rootView.getContext()).getCategory());
+
+                alertDialogBuilder.setView(addQuestionView);
+                alertDialogBuilder
+                        .setTitle("Add A Question")
+                        .setCancelable(false)
+                        .setPositiveButton("Add",
+                                new DialogInterface.OnClickListener() {
+                                    public void onClick(DialogInterface dialog, int id) {
+
+                                    }
+                                })
+                        .setNegativeButton("Cancel",
+                                new DialogInterface.OnClickListener() {
+                                    public void onClick(DialogInterface dialog, int id) {
+                                        dialog.cancel();
+                                    }
+                                });
+                AlertDialog alertDialog = alertDialogBuilder.create();
+                alertDialog.show();
+            }
+        });
 
         setting = (ImageView)rootView.findViewById(R.id.setting);
         setting.setOnClickListener(new View.OnClickListener(){
@@ -349,21 +434,31 @@ public class MainActivityFragment extends Fragment {
             mRecorder.setOutputFile(mFileName);
             mRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
             // Set other images' alpha to 255/4
-            timer.setImageAlpha(255/4);
-            replay.setImageAlpha(255/4);
+            timer.setImageAlpha(255 / 4);
+            replay.setImageAlpha(255 / 4);
             shuffle.setImageAlpha(255 / 4);
             questionList.setImageAlpha(255 / 4);
             save.setImageAlpha(255 / 4);
 
-            // Get preparation time
+            // Reset time elapsed
+            secondElapsed = 0;
+            minuteElapsed = 0;
+
+            // Get preparation time, minute and second
             preparationMinute = 0;
             preparationSecond = 0;
-            while (preparationTime > 60) {
+            while (preparationTime >= 60) {
                 preparationTime -= 60;
                 preparationMinute++;
             }
             preparationSecond = preparationTime;
-            preparationTime = Integer.parseInt(preparationTimeET.getText().toString());
+
+            // Get the original preparation time since we modified it above
+            try {
+                preparationTime = Integer.parseInt(preparationTimeET.getText().toString());
+            } catch (Exception e) {
+                preparationTime = 0;
+            }
 
             // Change record button to red
             record.setColorFilter(Color.parseColor("#CC0000"), PorterDuff.Mode.SRC_ATOP);
@@ -371,6 +466,8 @@ public class MainActivityFragment extends Fragment {
             // Change status and its color
             status.setTextColor(Color.parseColor("#CC0000"));
             mTimer = new Timer();
+
+            // TimeTask - run this every 1 second with 0 second initial delay
             updateStatus = new TimerTask() {
                 @Override
                 public void run() {
@@ -396,8 +493,14 @@ public class MainActivityFragment extends Fragment {
                                         Toast.makeText(getActivity().getApplicationContext(), "Failed to record. Please try again.", Toast.LENGTH_SHORT).show();
                                         return;
                                     }
+                                    status.setText(String.format("%02d:%02d", minuteElapsed, secondElapsed));
+                                } else if (recordDuration != 0 && secondElapsed + minuteElapsed * 60 - 1 == recordDuration) {
+                                    // Stop when timer reaches limited record duration
+                                    stopRecording();
+                                } else {
+                                    // Update current time elapsed
+                                    status.setText(String.format("%02d:%02d", minuteElapsed, secondElapsed));
                                 }
-                                status.setText(String.format("%02d:%02d", minuteElapsed, secondElapsed));
                                 // Count up
                                 if (secondElapsed == 59) {
                                     secondElapsed = 0;
@@ -413,43 +516,8 @@ public class MainActivityFragment extends Fragment {
             mTimer.schedule(updateStatus,0,1000);
             isRecording = true;
         } else if (isRecording && (secondElapsed > 0 || minuteElapsed > 0)) {
-            // Return to original state
-            record.setColorFilter(null);
-            status.setTextColor(Color.parseColor("#00B300"));
-            status.setText("Ready For Recording");
-            secondElapsed = 0;
-            minuteElapsed = 0;
-            if (timer != null && mRecorder != null) {
-                mTimer.purge();
-                mTimer.cancel();
-                mRecorder.stop();
-                mRecorder.release();
-                mRecorder = null;
-            }
-            isRecording = false;
-
-            // Change images alpha back to normal
-            timer.setImageAlpha(255);
-            replay.setImageAlpha(255);
-            shuffle.setImageAlpha(255);
-            questionList.setImageAlpha(255);
-            save.setImageAlpha(255);
-
-            Toast.makeText(getActivity(),"Record Successful. Available for replay and save",Toast.LENGTH_SHORT).show();
-        } else {
-            mTimer.purge();
-            mTimer.cancel();
-            record.setColorFilter(null);
-            status.setTextColor(Color.parseColor("#00B300"));
-            status.setText("Ready For Recording");
-
-            // Change images alpha back to normal
-            timer.setImageAlpha(255);
-            replay.setImageAlpha(255);
-            shuffle.setImageAlpha(255);
-            questionList.setImageAlpha(255);
-            save.setImageAlpha(255);
-            isRecording = false;
+            // Make sure the phone records at least 1 second when user trys to manually stop recording
+            stopRecording();
         }
     }
 
@@ -464,10 +532,15 @@ public class MainActivityFragment extends Fragment {
             } catch (IOException e) {
                 Log.e(LOG_TAG, "prepare() failed");
             }
-        } else {
-            mPlayer.release();
-            mPlayer = null;
-            isPlaying = false;
+            // Release media player after finish playing the audio
+            new Handler().postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    mPlayer.release();
+                    mPlayer = null;
+                    isPlaying = false;
+                }
+            },mPlayer.getDuration());
         }
     }
 
@@ -556,5 +629,29 @@ public class MainActivityFragment extends Fragment {
         shuffle.setImageAlpha(255);
         questionList.setImageAlpha(255);
         save.setImageAlpha(255);
+    }
+
+    private void stopRecording() {
+        record.setColorFilter(null);
+        status.setTextColor(Color.parseColor("#00B300"));
+        status.setText("Ready For Recording");
+        if (timer != null && mRecorder != null) {
+            mTimer.purge();
+            mTimer.cancel();
+            mRecorder.stop();
+            mRecorder.release();
+            mRecorder = null;
+            mTimer = null;
+        }
+        isRecording = false;
+
+        // Change images alpha back to normal
+        timer.setImageAlpha(255);
+        replay.setImageAlpha(255);
+        shuffle.setImageAlpha(255);
+        questionList.setImageAlpha(255);
+        save.setImageAlpha(255);
+
+        Toast.makeText(getActivity(),"Record Successful. Available for replay and save",Toast.LENGTH_SHORT).show();
     }
 }

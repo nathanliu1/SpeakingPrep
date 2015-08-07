@@ -69,7 +69,9 @@
         android:text="Q: Who are we?
         \nA: We are second year Computer and Mechatronics Engineering students from University of Waterloo, Canada.
         \n\nQ: Why do we create this app?
-        \nA: Because we are terrible at job interview and we think that the traditional ways to practice interviews (memorize answers, practice with friends blah blah blah) are not working for us. As a result, we invent our own way to practice for interview, which involves record, replay, improve and redo."
+        \nA: Because we are terrible at job interview and we think that the traditional ways to practice interviews (memorize answers, practice with friends blah blah blah) are not working for us. As a result, we invent our own way to practice for interview, which involves record, replay, improve and redo.
+        \n\nQ: Why don't we put ads in this app?
+        \nA: Because we are rich."
         android:id="@+id/textView4"
         android:textSize="18dp"
         android:layout_marginTop="70dp"
