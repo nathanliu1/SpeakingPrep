@@ -82,6 +82,8 @@ public class MainActivityFragment extends Fragment {
     private int recordDuration = 0;
     private EditText preparationTimeET;
     private EditText recordDurationET;
+    private String selectedCategory = "Uncategorised";
+    private boolean isPreparing = false;
 
     public MainActivityFragment() {
     }
@@ -350,7 +352,7 @@ public class MainActivityFragment extends Fragment {
                         if (categoryName.equals("<Add A Category>")) {
                             LayoutInflater li = LayoutInflater.from(rootView.getContext());
                             final View addCategoryView = li.inflate(R.layout.add_category, null);
-                            final EditText et = (EditText)addCategoryView.findViewById(R.id.editText);
+                            final EditText et = (EditText) addCategoryView.findViewById(R.id.editText);
                             AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(rootView.getContext());
                             alertDialogBuilder.setView(addCategoryView);
                             alertDialogBuilder
@@ -361,9 +363,13 @@ public class MainActivityFragment extends Fragment {
                                                 public void onClick(DialogInterface dialog, int id) {
                                                     // Check if user inputs nothing
                                                     if (!et.getText().toString().equals("")) {
-                                                        QuestionCategory.addCategory(et.getText().toString());
+                                                        // Check if user input something that already exist in the spinner
+                                                        if (!QuestionCategory.addCategory(et.getText().toString())) {
+                                                            category.setSelection(getIndex(category, et.getText().toString()));
+                                                        }
+                                                        selectedCategory = et.getText().toString();                            Log.e(LOG_TAG,selectedCategory);
                                                     } else {
-                                                        Toast.makeText(rootView.getContext(),"Invalid Input",Toast.LENGTH_SHORT).show();
+                                                        Toast.makeText(rootView.getContext(), "Invalid Input", Toast.LENGTH_SHORT).show();
                                                         category.setSelection(0);
                                                     }
                                                 }
@@ -378,15 +384,20 @@ public class MainActivityFragment extends Fragment {
                             AlertDialog alertDialog = alertDialogBuilder.create();
                             alertDialog.show();
                         } else {
-
+                            selectedCategory = categoryName;
+                            Log.e(LOG_TAG,selectedCategory);
                         }
                     }
 
                     @Override
-                    public void onNothingSelected(AdapterView<?> parent) { }
+                    public void onNothingSelected(AdapterView<?> parent) {
+                    }
                 });
                 category.setAdapter(new QuestionCategory(rootView.getContext()).getCategory());
+                category.setSelection(getIndex(category,selectedCategory));
 
+                // Add a question here
+                final EditText questionText = (EditText)addQuestionView.findViewById(R.id.editText);
                 alertDialogBuilder.setView(addQuestionView);
                 alertDialogBuilder
                         .setTitle("Add A Question")
@@ -394,7 +405,7 @@ public class MainActivityFragment extends Fragment {
                         .setPositiveButton("Add",
                                 new DialogInterface.OnClickListener() {
                                     public void onClick(DialogInterface dialog, int id) {
-
+                                        QuestionCategory.addQuestion(selectedCategory,new Question(questionText.getText().toString()));
                                     }
                                 })
                         .setNegativeButton("Cancel",
@@ -476,6 +487,7 @@ public class MainActivityFragment extends Fragment {
                         public void run() {
                             // Count down
                             if (preparationSecond != 0 || preparationMinute != 0) {
+                                isPreparing = true;
                                 status.setText(String.format("-%02d:%02d",preparationMinute,preparationSecond));
                                 if (preparationSecond == 0 && preparationMinute != 0) {
                                     preparationSecond = 59;
@@ -484,6 +496,7 @@ public class MainActivityFragment extends Fragment {
                                     preparationSecond--;
                                 }
                             } else {
+                                isPreparing = false;
                                 if (secondElapsed == 0 && minuteElapsed == 0) {
                                     // Prepare and start recording
                                     try {
@@ -515,8 +528,7 @@ public class MainActivityFragment extends Fragment {
             };
             mTimer.schedule(updateStatus,0,1000);
             isRecording = true;
-        } else if (isRecording && (secondElapsed > 0 || minuteElapsed > 0)) {
-            // Make sure the phone records at least 1 second when user trys to manually stop recording
+        } else {
             stopRecording();
         }
     }
@@ -638,8 +650,11 @@ public class MainActivityFragment extends Fragment {
         if (timer != null && mRecorder != null) {
             mTimer.purge();
             mTimer.cancel();
-            mRecorder.stop();
-            mRecorder.release();
+            if (!isPreparing && isRecording && (secondElapsed > 0 || minuteElapsed > 0)) {
+                mRecorder.stop();
+                mRecorder.release();
+                Toast.makeText(getActivity(),"Record Successful. Available for replay and save",Toast.LENGTH_SHORT).show();
+            }
             mRecorder = null;
             mTimer = null;
         }
@@ -651,7 +666,14 @@ public class MainActivityFragment extends Fragment {
         shuffle.setImageAlpha(255);
         questionList.setImageAlpha(255);
         save.setImageAlpha(255);
+    }
 
-        Toast.makeText(getActivity(),"Record Successful. Available for replay and save",Toast.LENGTH_SHORT).show();
+    private int getIndex (Spinner spinner, String s) {
+        for (int i = 0; i < spinner.getCount(); i++) {
+            if (spinner.getItemAtPosition(i).toString().equalsIgnoreCase(s)) {
+                return i;
+            }
+        }
+        return -1;
     }
 }
