@@ -344,87 +344,90 @@ public class MainActivityFragment extends Fragment {
         actionButton.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v) {
-                LayoutInflater li = LayoutInflater.from(rootView.getContext());
-                final View addQuestionView = li.inflate(R.layout.add_question, null);
-                AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(rootView.getContext());
+                if (!isRecording) {
+                    LayoutInflater li = LayoutInflater.from(rootView.getContext());
+                    final View addQuestionView = li.inflate(R.layout.add_question, null);
+                    AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(rootView.getContext());
 
-                // Set spinner and onItemSelectedlistener
-                final Spinner category = (Spinner)addQuestionView.findViewById(R.id.spinner);
-                category.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-                    @Override
-                    public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                        String categoryName = ((TextView) view).getText().toString();
-                        // If user wants to add a category
-                        if (categoryName.equals("<Add A Category>")) {
-                            LayoutInflater li = LayoutInflater.from(rootView.getContext());
-                            final View addCategoryView = li.inflate(R.layout.add_category, null);
-                            final EditText et = (EditText) addCategoryView.findViewById(R.id.editText);
-                            AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(rootView.getContext());
-                            alertDialogBuilder.setView(addCategoryView);
-                            alertDialogBuilder
-                                    .setTitle("Add A Category")
-                                    .setCancelable(false)
-                                    .setPositiveButton("Add",
-                                            new DialogInterface.OnClickListener() {
-                                                public void onClick(DialogInterface dialog, int id) {
-                                                    // Check if user inputs nothing
-                                                    if (!et.getText().toString().equals("")) {
-                                                        // Check if user input something that already exist in the spinner
-                                                        if (!QuestionCategory.addCategory(et.getText().toString())) {
-                                                            category.setSelection(getIndex(category, et.getText().toString()));
+                    // Set spinner and onItemSelectedlistener
+                    final Spinner category = (Spinner) addQuestionView.findViewById(R.id.spinner);
+                    category.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                        @Override
+                        public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                            String categoryName = ((TextView) view).getText().toString();
+                            // If user wants to add a category
+                            if (categoryName.equals("<Add A Category>")) {
+                                LayoutInflater li = LayoutInflater.from(rootView.getContext());
+                                final View addCategoryView = li.inflate(R.layout.add_category, null);
+                                final EditText et = (EditText) addCategoryView.findViewById(R.id.editText);
+                                AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(rootView.getContext());
+                                alertDialogBuilder.setView(addCategoryView);
+                                alertDialogBuilder
+                                        .setTitle("Add A Category")
+                                        .setCancelable(false)
+                                        .setPositiveButton("Add",
+                                                new DialogInterface.OnClickListener() {
+                                                    public void onClick(DialogInterface dialog, int id) {
+                                                        // Check if user inputs nothing
+                                                        if (!et.getText().toString().equals("")) {
+                                                            // Check if user input something that already exist in the spinner
+                                                            if (!QuestionCategory.addCategory(et.getText().toString())) {
+                                                                category.setSelection(getIndex(category, et.getText().toString()));
+                                                            }
+                                                            selectedCategory = et.getText().toString();
+                                                            Log.e(LOG_TAG, selectedCategory);
+                                                        } else {
+                                                            Toast.makeText(rootView.getContext(), "Invalid Input", Toast.LENGTH_SHORT).show();
+                                                            category.setSelection(0);
                                                         }
-                                                        selectedCategory = et.getText().toString();                            Log.e(LOG_TAG,selectedCategory);
-                                                    } else {
-                                                        Toast.makeText(rootView.getContext(), "Invalid Input", Toast.LENGTH_SHORT).show();
-                                                        category.setSelection(0);
                                                     }
-                                                }
-                                            })
-                                    .setNegativeButton("Cancel",
-                                            new DialogInterface.OnClickListener() {
-                                                public void onClick(DialogInterface dialog, int id) {
-                                                    category.setSelection(0);
-                                                    dialog.cancel();
-                                                }
-                                            });
-                            AlertDialog alertDialog = alertDialogBuilder.create();
-                            alertDialog.show();
-                        } else {
-                            selectedCategory = categoryName;
-                            Log.e(LOG_TAG,selectedCategory);
+                                                })
+                                        .setNegativeButton("Cancel",
+                                                new DialogInterface.OnClickListener() {
+                                                    public void onClick(DialogInterface dialog, int id) {
+                                                        category.setSelection(0);
+                                                        dialog.cancel();
+                                                    }
+                                                });
+                                AlertDialog alertDialog = alertDialogBuilder.create();
+                                alertDialog.show();
+                            } else {
+                                selectedCategory = categoryName;
+                                Log.e(LOG_TAG, selectedCategory);
+                            }
                         }
-                    }
 
-                    @Override
-                    public void onNothingSelected(AdapterView<?> parent) {
-                    }
-                });
-                category.setAdapter(new QuestionCategory(rootView.getContext()).getCategory());
-                category.setSelection(getIndex(category,selectedCategory));
+                        @Override
+                        public void onNothingSelected(AdapterView<?> parent) {
+                        }
+                    });
+                    category.setAdapter(new QuestionCategory(rootView.getContext()).getCategory());
+                    category.setSelection(getIndex(category, selectedCategory));
 
-                // Add a question here
-                final EditText questionText = (EditText)addQuestionView.findViewById(R.id.editText);
-                alertDialogBuilder.setView(addQuestionView);
-                alertDialogBuilder
-                        .setTitle("Add A Question")
-                        .setCancelable(false)
-                        .setPositiveButton("Add",
-                                new DialogInterface.OnClickListener() {
-                                    public void onClick(DialogInterface dialog, int id) {
-                                        if (!questionText.getText().toString().equals("")) {
-                                            QuestionCategory.addQuestion(selectedCategory, new Question(questionText.getText().toString()));
-                                            question.startAnimation(fadeOut);
+                    // Add a question here
+                    final EditText questionText = (EditText) addQuestionView.findViewById(R.id.editText);
+                    alertDialogBuilder.setView(addQuestionView);
+                    alertDialogBuilder
+                            .setTitle("Add A Question")
+                            .setCancelable(false)
+                            .setPositiveButton("Add",
+                                    new DialogInterface.OnClickListener() {
+                                        public void onClick(DialogInterface dialog, int id) {
+                                            if (!questionText.getText().toString().equals("")) {
+                                                QuestionCategory.addQuestion(selectedCategory, new Question(questionText.getText().toString()));
+                                                question.startAnimation(fadeOut);
+                                            }
                                         }
-                                    }
-                                })
-                        .setNegativeButton("Cancel",
-                                new DialogInterface.OnClickListener() {
-                                    public void onClick(DialogInterface dialog, int id) {
-                                        dialog.cancel();
-                                    }
-                                });
-                AlertDialog alertDialog = alertDialogBuilder.create();
-                alertDialog.show();
+                                    })
+                            .setNegativeButton("Cancel",
+                                    new DialogInterface.OnClickListener() {
+                                        public void onClick(DialogInterface dialog, int id) {
+                                            dialog.cancel();
+                                        }
+                                    });
+                    AlertDialog alertDialog = alertDialogBuilder.create();
+                    alertDialog.show();
+                }
             }
         });
 
