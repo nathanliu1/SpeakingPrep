@@ -24,10 +24,10 @@ public class QuestionCategory {
     private static ArrayAdapter<String> mAdapter;
     //Key -> category, Value -> List of questions which belongs to that category
     private static HashMap<String,List<Question>> questionMap = new HashMap<>();
+    private static ArrayList<Question> listOfAllQuestions = new ArrayList<>();
 
     public QuestionCategory(final Context context) {
         this.context = context;
-
         // Clear category array before adding
         category.clear();
         category.add("Uncategorised");
@@ -78,6 +78,10 @@ public class QuestionCategory {
         if (!questionMap.containsKey(key)) {
             questionMap.put(key,new ArrayList<Question>());
         }
+        // Add two basic questions for the app
+        if (key.equals("Uncategorised") && questionMap.get(key).size() == 0) {
+            questionMap.get(key).add(new Question("Can you tell me a little bit about yourself?"));
+        }
     }
 
     public static void addQuestion(String categoryName, Question question) {
@@ -87,9 +91,13 @@ public class QuestionCategory {
         } else {
             questionMap.get(categoryName).add(question);
         }
-
-        for (Question q : questionMap.get(categoryName)) {
-            Log.e("HI",categoryName + ": " + q.toString());
+        if (listOfAllQuestions.size() == 0) {
+            listOfAllQuestions.add(new Question("Can you tell me a little bit about yourself?"));
         }
+        listOfAllQuestions.add(question);
+    }
+
+    public static ArrayList<Question> getAllQuestion() {
+        return listOfAllQuestions;
     }
 }

@@ -84,6 +84,8 @@ public class MainActivityFragment extends Fragment {
     private EditText recordDurationET;
     private String selectedCategory = "Uncategorised";
     private boolean isPreparing = false;
+    private int questionCounter = 0;
+    private Toast warning;
 
     public MainActivityFragment() {
     }
@@ -243,8 +245,10 @@ public class MainActivityFragment extends Fragment {
                             // Next Question
                             nextQuestion.setImageAlpha(255 / 4);
                             isNext = true;
-                            if (!isAnimating) {
+                            if (!isAnimating && QuestionCategory.getAllQuestion().size() > questionCounter + 1) {
                                 question.startAnimation(fadeOut);
+                            } else if (!isAnimating){
+                                showToast("You Have Reached The End Of Your List");
                             }
                             return true;
                     }
@@ -268,8 +272,10 @@ public class MainActivityFragment extends Fragment {
                             // Previous Question
                             previousQuestion.setImageAlpha(255 / 4);
                             isNext = false;
-                            if (!isAnimating) {
+                            if (!isAnimating && QuestionCategory.getAllQuestion().size() > 1 && questionCounter != 0) {
                                 question.startAnimation(fadeOut);
+                            } else if (!isAnimating) {
+                                showToast("You Have Reached The Beginning Of Your List");
                             }
                             return true;
                     }
@@ -405,7 +411,10 @@ public class MainActivityFragment extends Fragment {
                         .setPositiveButton("Add",
                                 new DialogInterface.OnClickListener() {
                                     public void onClick(DialogInterface dialog, int id) {
-                                        QuestionCategory.addQuestion(selectedCategory,new Question(questionText.getText().toString()));
+                                        if (!questionText.getText().toString().equals("")) {
+                                            QuestionCategory.addQuestion(selectedCategory, new Question(questionText.getText().toString()));
+                                            question.startAnimation(fadeOut);
+                                        }
                                     }
                                 })
                         .setNegativeButton("Cancel",
@@ -552,7 +561,7 @@ public class MainActivityFragment extends Fragment {
                     mPlayer = null;
                     isPlaying = false;
                 }
-            },mPlayer.getDuration());
+            }, mPlayer.getDuration());
         }
     }
 
@@ -588,10 +597,12 @@ public class MainActivityFragment extends Fragment {
 
             @Override
             public void onAnimationEnd(Animation animation) {
-                if (isNext)
-                    question.setText("Why do you want to work in this company?");
-                else
-                    question.setText("Can you tell me a little bit about yourself?");
+                if (isNext) {
+                    questionCounter++;
+                } else {
+                    questionCounter--;
+                }
+                question.setText(QuestionCategory.getAllQuestion().get(questionCounter).toString());
                 question.startAnimation(fadeIn);
              }
 
@@ -675,5 +686,14 @@ public class MainActivityFragment extends Fragment {
             }
         }
         return -1;
+    }
+
+    private void showToast(String text) {
+        if (warning == null) {
+            warning = Toast.makeText(getActivity(),text,Toast.LENGTH_SHORT);
+        }
+        warning.setText(text);
+        warning.setDuration(Toast.LENGTH_SHORT);
+        warning.show();
     }
 }
