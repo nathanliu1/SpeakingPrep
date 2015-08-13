@@ -414,7 +414,16 @@ public class MainActivityFragment extends Fragment {
                                     new DialogInterface.OnClickListener() {
                                         public void onClick(DialogInterface dialog, int id) {
                                             if (!questionText.getText().toString().equals("")) {
-                                                QuestionCategory.addQuestion(selectedCategory, new Question(questionText.getText().toString()));
+                                                 String TempQuestion = questionText.getText().toString();
+                                             //   if(TempQuestion.contains("\n")) {
+                                             //       String[] TempQuestionParts = TempQuestion.split("\n");
+                                             //       String TempQuestion1 = TempQuestionParts[1];
+                                             //       String TempQuestion2 = TempQuestionParts[2];
+                                            //        QuestionCategory.addQuestion(selectedCategory, new Question(TempQuestion1));
+                                            //        QuestionCategory.addQuestion(selectedCategory, new Question(TempQuestion2));
+                                            //    } else {
+                                                    QuestionCategory.addQuestion(selectedCategory, new Question(TempQuestion));
+                                            //    }
                                                 question.startAnimation(fadeOut);
                                             }
                                         }
