@@ -62,17 +62,17 @@ public class MainActivityFragment extends Fragment {
     private ImageView aboutAuthor = null;
     private ImageView setting = null;
     private static TextView status = null;
-    private TextView question = null;
+    private static TextView question = null;
     private static boolean isRecording = false;
     private boolean isPlaying = false;
     private ActionButton actionButton;
     private static Timer mTimer;
     private ImageView nextQuestion = null;
     private ImageView previousQuestion = null;
-    private AlphaAnimation fadeIn = new AlphaAnimation(0f,1f);
-    private AlphaAnimation fadeOut = new AlphaAnimation(1f,0f);
+    private static AlphaAnimation fadeIn = new AlphaAnimation(0f,1f);
+    private static AlphaAnimation fadeOut = new AlphaAnimation(1f,0f);
     private boolean isAnimating = false; // Check if animation is going on
-    private boolean isNext = true; // Check if user wants to go to next question or previous question
+    private static boolean isNext = true; // Check if user wants to go to next question or previous question
     private static int secondElapsed = 0;
     private static int minuteElapsed = 0;
     private static TimerTask updateStatus = null;
@@ -86,6 +86,7 @@ public class MainActivityFragment extends Fragment {
     private boolean isPreparing = false;
     private int questionCounter = 0;
     private Toast warning;
+    public static String currentQuestion;
 
     public MainActivityFragment() {
     }
@@ -196,6 +197,12 @@ public class MainActivityFragment extends Fragment {
         });
 
         questionList = (ImageView)rootView.findViewById(R.id.question_list);
+        questionList.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(rootView.getContext(),ListViewActivity.class));
+            }
+        });
         questionListTV = (TextView)rootView.findViewById(R.id.question_list_text);
         questionListTV.setOnClickListener(new View.OnClickListener(){
             @Override
@@ -614,9 +621,13 @@ public class MainActivityFragment extends Fragment {
                 } else {
                     questionCounter--;
                 }
+
+                if (!isNext && (questionCounter >= QuestionCategory.getAllQuestion().size() || questionCounter < 0)) {
+                    questionCounter = 0;
+                }
                 question.setText(QuestionCategory.getAllQuestion().get(questionCounter).toString());
                 question.startAnimation(fadeIn);
-             }
+            }
 
             @Override
             public void onAnimationRepeat(Animation animation) {
@@ -707,5 +718,10 @@ public class MainActivityFragment extends Fragment {
         warning.setText(text);
         warning.setDuration(Toast.LENGTH_SHORT);
         warning.show();
+    }
+
+    public static void previousQuestion() {
+        isNext = false;
+        question.startAnimation(fadeOut);
     }
 }

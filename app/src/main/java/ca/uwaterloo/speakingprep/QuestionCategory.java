@@ -61,7 +61,7 @@ public class QuestionCategory {
         mAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
     }
 
-    public ArrayAdapter<String> getCategory() { return mAdapter; }
+    public static ArrayAdapter<String> getCategory() { return mAdapter; }
 
     public static boolean addCategory (String categoryName) {
         for (String s : category) {
@@ -99,5 +99,25 @@ public class QuestionCategory {
 
     public static ArrayList<Question> getAllQuestion() {
         return listOfAllQuestions;
+    }
+
+    public static HashMap<String,List<Question>> getMap() {
+        return questionMap;
+    }
+
+    public static void deleteQuestion(String category, String question) {
+        for (int i = 0; i < listOfAllQuestions.size(); i++) {
+            if (listOfAllQuestions.get(i).toString().equals(question)) {
+                listOfAllQuestions.remove(i);
+                break;
+            }
+        }
+        List<Question> temp = questionMap.get(category);
+        for (int i = 0; i < temp.size(); i++) {
+            if (temp.get(i).toString().equals(question)) {
+                temp.remove(i);
+                break;
+            }
+        }
     }
 }
