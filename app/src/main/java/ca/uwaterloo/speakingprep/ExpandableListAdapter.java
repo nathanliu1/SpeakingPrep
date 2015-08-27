@@ -124,8 +124,9 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter {
                                             questionMap.get(category.get(groupPosition));
                                     child.remove(childPosition);
                                     notifyDataSetChanged();
+                                    MainActivityFragment.questionCounter--;
+                                    MainActivityFragment.previousQuestion(question);
                                     QuestionCategory.deleteQuestion((String) getGroup(groupPosition), question);
-                                    MainActivityFragment.previousQuestion();
                                 }
                             }
                         });

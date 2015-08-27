@@ -112,10 +112,9 @@ public class QuestionCategory {
                 break;
             }
         }
-        List<Question> temp = questionMap.get(category);
-        for (int i = 0; i < temp.size(); i++) {
-            if (temp.get(i).toString().equals(question)) {
-                temp.remove(i);
+        for (int i = 0; i < questionMap.get(category).size(); i++) {
+            if (questionMap.get(category).get(i).toString().equals(question)) {
+                questionMap.get(category).remove(i);
                 break;
             }
         }

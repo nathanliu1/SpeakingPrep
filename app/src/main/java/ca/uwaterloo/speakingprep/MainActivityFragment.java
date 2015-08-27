@@ -33,6 +33,7 @@ import android.widget.Toast;
 import com.software.shell.fab.*;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -84,9 +85,8 @@ public class MainActivityFragment extends Fragment {
     private EditText recordDurationET;
     private String selectedCategory = "Uncategorised";
     private boolean isPreparing = false;
-    private int questionCounter = 0;
+    public static int questionCounter = 0;
     private Toast warning;
-    public static String currentQuestion;
 
     public MainActivityFragment() {
     }
@@ -379,7 +379,7 @@ public class MainActivityFragment extends Fragment {
                                                         if (!et.getText().toString().equals("")) {
                                                             // Check if user input something that already exist in the spinner
                                                             if (!QuestionCategory.addCategory(et.getText().toString())) {
-                                                                category.setSelection(getIndex(category, et.getText().toString()));
+                                                                category.setSelection(getIndexSpinner(category, et.getText().toString()));
                                                             }
                                                             selectedCategory = et.getText().toString();
                                                             Log.e(LOG_TAG, selectedCategory);
@@ -409,7 +409,7 @@ public class MainActivityFragment extends Fragment {
                         }
                     });
                     category.setAdapter(new QuestionCategory(rootView.getContext()).getCategory());
-                    category.setSelection(getIndex(category, selectedCategory));
+                    category.setSelection(getIndexSpinner(category, selectedCategory));
 
                     // Add a question here
                     final EditText questionText = (EditText) addQuestionView.findViewById(R.id.editText);
@@ -430,6 +430,7 @@ public class MainActivityFragment extends Fragment {
                                             //        QuestionCategory.addQuestion(selectedCategory, new Question(TempQuestion2));
                                             //    } else {
                                                     QuestionCategory.addQuestion(selectedCategory, new Question(TempQuestion));
+                                                isNext = true;
                                             //    }
                                                 question.startAnimation(fadeOut);
                                             }
@@ -454,8 +455,6 @@ public class MainActivityFragment extends Fragment {
                 if (!isRecording) {
                     Intent goToSetting = new Intent(rootView.getContext(), Setting.class);
                     startActivity(goToSetting);
-                } else {
-                    Toast.makeText(rootView.getContext(),"You have to stop recording first", Toast.LENGTH_SHORT).show();
                 }
             }
         });
@@ -618,15 +617,14 @@ public class MainActivityFragment extends Fragment {
             public void onAnimationEnd(Animation animation) {
                 if (isNext) {
                     questionCounter++;
-                } else {
+                } else if (questionCounter >= 1) {
                     questionCounter--;
                 }
 
-                if (!isNext && (questionCounter >= QuestionCategory.getAllQuestion().size() || questionCounter < 0)) {
-                    questionCounter = 0;
-                }
                 question.setText(QuestionCategory.getAllQuestion().get(questionCounter).toString());
+
                 question.startAnimation(fadeIn);
+
             }
 
             @Override
@@ -702,9 +700,18 @@ public class MainActivityFragment extends Fragment {
         save.setImageAlpha(255);
     }
 
-    private int getIndex (Spinner spinner, String s) {
+    private int getIndexSpinner (Spinner spinner, String s) {
         for (int i = 0; i < spinner.getCount(); i++) {
             if (spinner.getItemAtPosition(i).toString().equalsIgnoreCase(s)) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    private static int getIndexArray (ArrayList<Question> array, String s) {
+        for (int i = 0; i < array.size(); i++) {
+            if (array.get(i).toString().equalsIgnoreCase(s)) {
                 return i;
             }
         }
@@ -720,8 +727,13 @@ public class MainActivityFragment extends Fragment {
         warning.show();
     }
 
-    public static void previousQuestion() {
+    public static void previousQuestion(String s) {
         isNext = false;
-        question.startAnimation(fadeOut);
+        Log.e("questionCounter", "" + questionCounter);
+        Log.e("ss", "" + getIndexArray(QuestionCategory.getAllQuestion(),s));
+
+        if (getIndexArray(QuestionCategory.getAllQuestion(),s) == questionCounter + 1) {
+            question.startAnimation(fadeOut);
+        }
     }
 }
