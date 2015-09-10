@@ -442,16 +442,15 @@ public class MainActivityFragment extends Fragment {
                                         public void onClick(DialogInterface dialog, int id) {
                                             if (!questionText.getText().toString().equals("")) {
                                                  String TempQuestion = questionText.getText().toString();
-                                             //   if(TempQuestion.contains("\n")) {
-                                             //       String[] TempQuestionParts = TempQuestion.split("\n");
-                                             //       String TempQuestion1 = TempQuestionParts[1];
-                                             //       String TempQuestion2 = TempQuestionParts[2];
-                                            //        QuestionCategory.addQuestion(selectedCategory, new Question(TempQuestion1));
-                                            //        QuestionCategory.addQuestion(selectedCategory, new Question(TempQuestion2));
-                                            //    } else {
+                                                 if(TempQuestion.contains("\n")) {
+                                                    String[] TempQuestionParts = TempQuestion.split("\n");
+                                                     for (int i = 0; i < TempQuestionParts.length; i++) {
+                                                         QuestionCategory.addQuestion(selectedCategory, new Question(TempQuestionParts[i]));
+                                                     }
+                                                 } else {
                                                     QuestionCategory.addQuestion(selectedCategory, new Question(TempQuestion));
                                                 isNext = true;
-                                            //    }
+                                                 }
                                                 question.startAnimation(fadeOut);
                                             }
                                         }
