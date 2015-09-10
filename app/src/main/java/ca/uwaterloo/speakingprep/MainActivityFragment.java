@@ -34,6 +34,9 @@ import com.software.shell.fab.*;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Random;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -87,6 +90,8 @@ public class MainActivityFragment extends Fragment {
     private boolean isPreparing = false;
     public static int questionCounter = 0;
     private Toast warning;
+    private boolean isShuffle = false;
+    private List<Question> shuffledQuestion;
 
     public MainActivityFragment() {
     }
@@ -188,6 +193,21 @@ public class MainActivityFragment extends Fragment {
         });
 
         shuffle = (ImageView)rootView.findViewById(R.id.shuffle);
+        shuffle.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v) {
+                if (!isRecording) {
+                    if (!isShuffle) {
+                        shuffle.setColorFilter(Color.parseColor("#00CC00"), PorterDuff.Mode.SRC_ATOP);
+                        isShuffle = true;
+                    } else {
+                        shuffle.setColorFilter(null);
+                        isShuffle = false;
+                    }
+                }
+            }
+        });
+
         shuffleTV = (TextView)rootView.findViewById(R.id.shuffle_text);
         shuffleTV.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -621,7 +641,11 @@ public class MainActivityFragment extends Fragment {
                     questionCounter--;
                 }
 
-                question.setText(QuestionCategory.getAllQuestion().get(questionCounter).toString());
+                if (!isShuffle) {
+                    question.setText(QuestionCategory.getAllQuestion().get(questionCounter).toString());
+                } else {
+
+                }
 
                 question.startAnimation(fadeIn);
 
@@ -730,7 +754,7 @@ public class MainActivityFragment extends Fragment {
     public static void previousQuestion(String s) {
         isNext = false;
         Log.e("questionCounter", "" + questionCounter);
-        Log.e("ss", "" + getIndexArray(QuestionCategory.getAllQuestion(),s));
+        Log.e("ss", "" + getIndexArray(QuestionCategory.getAllQuestion(), s));
 
         if (getIndexArray(QuestionCategory.getAllQuestion(),s) == questionCounter + 1) {
             question.startAnimation(fadeOut);
